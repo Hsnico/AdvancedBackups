@@ -148,7 +148,7 @@ config.advancedbackups.zips.split
 
 #The size of each split zip file, in MB.
 #Range : 1-10240    #Default : 1024
-config.advancedbackups.zips.splitSize
+config.advancedbackups.zips.splitsize
 
 
 #--------------------------------------------------------------------------------------------------------------------
