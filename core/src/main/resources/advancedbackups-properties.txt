@@ -142,6 +142,14 @@ config.advancedbackups.purge.incrementalchains
 #Range : 1-9    #Default : 4
 config.advancedbackups.zips.compression
 
+#Whether to split zip files into multiple parts.
+#Options : true, false    #Default : false
+config.advancedbackups.zips.split
+
+#The size of each split zip file, in MB.
+#Range : 1-10240    #Default : 1024
+config.advancedbackups.zips.splitSize
+
 
 #--------------------------------------------------------------------------------------------------------------------
 ##The following options only affect differential and incremental backups.

@@ -64,6 +64,8 @@ public class ConfigManager {
     public static final BooleanValue console = new BooleanValue("config.advancedbackups.logging.console", true, ConfigManager::register);
     public static final LongValue consoleFrequency = new LongValue("config.advancedbackups.logging.consolefrequency", 5000L, 0L, Long.MAX_VALUE, ConfigManager::register);
     public static final LongValue compression = new LongValue("config.advancedbackups.zips.compression", 4, 1, 9, ConfigManager::register);
+    public static final BooleanValue splitZips = new BooleanValue("config.advancedbackups.zips.split", false, ConfigManager::register);
+    public static final LongValue zipSplitSize = new LongValue("config.advancedbackups.zips.splitsize", 1024, 1, Long.MAX_VALUE, ConfigManager::register);
     public static final LongValue length = new LongValue("config.advancedbackups.chains.length", 50, 5, 500, ConfigManager::register);
     public static final BooleanValue compressChains = new BooleanValue("config.advancedbackups.chains.compress", true, ConfigManager::register);
     public static final BooleanValue smartChains = new BooleanValue("config.advancedbackups.chains.smart", true, ConfigManager::register);
