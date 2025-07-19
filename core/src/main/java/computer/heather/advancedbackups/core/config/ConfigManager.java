@@ -127,11 +127,17 @@ public class ConfigManager {
         //Load the config file.
         Properties props = new Properties();
         File file = new File("./config/AdvancedBackups.properties");
-        FileReader reader;
-        try {
-            reader = new FileReader(file);
-            props.load(reader);
-            reader.close();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty() || line.trim().startsWith("#")) {
+                    continue;
+                }
+                String[] parts = line.split("=", 2);
+                if (parts.length == 2) {
+                    props.setProperty(parts[0].trim(), parts[1].trim());
+                }
+            }
         } catch (IOException e) {
             // TODO : Scream to user
             ABCore.logStackTrace(e);
