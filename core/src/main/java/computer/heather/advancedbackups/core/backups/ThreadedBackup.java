@@ -167,9 +167,18 @@ public class ThreadedBackup extends Thread {
             File zip = new File(file.toString() + (this.snapshot ? "/snapshots/" : "/zips/"), backupName + ".zip");
             ABCore.infoLogger.accept("Preparing " + (this.snapshot ? "snapshot" : "zip") + " backup with name:\n  " + zip.getName().replace("incomplete", this.snapshot ? snapshotName : "backup"));
             this.output.accept("Preparing " + (this.snapshot ? "snapshot" : "zip") + " backup with name:\n  " + zip.getName().replace("incomplete", this.snapshot ? snapshotName : "backup"));
+
+            if (ConfigManager.splitZips.get()) {
+                zip.delete();
+                zip = new File(file.toString() + (this.snapshot ? "/snapshots/" : "/zips/"), backupName + ".zip.001");
+            }
             FileOutputStream outputStream = new FileOutputStream(zip);
             ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
             zipOutputStream.setLevel((int) ConfigManager.compression.get());
+
+            long maxsize = ConfigManager.zipSplitSize.get() * 1024 * 1024;
+            int part = 1;
+            long currentSize = 0;
 
             ArrayList<Path> paths = new ArrayList<>();
 
@@ -243,6 +252,19 @@ public class ThreadedBackup extends Thread {
                     }
 
                     zipOutputStream.closeEntry();
+                    currentSize += sourceFile.length();
+
+                    if (ConfigManager.splitZips.get() && currentSize >= maxsize) {
+                        zipOutputStream.close();
+                        part++;
+                        String newName = zip.getAbsolutePath().substring(0, zip.getAbsolutePath().length() - 3) + String.format("%03d", part);
+                        zip = new File(newName);
+                        outputStream = new FileOutputStream(zip);
+                        zipOutputStream = new ZipOutputStream(outputStream);
+                        zipOutputStream.setLevel((int) ConfigManager.compression.get());
+                        currentSize = 0;
+                    }
+
                     //We need to handle interrupts in various styles in different parts of the process!
                     if (this.isInterrupted()) {
                         zipOutputStream.close();
@@ -376,9 +398,17 @@ public class ThreadedBackup extends Thread {
 
             if (ConfigManager.compressChains.get()) {
                 File zip = differential ? new File(location.toString() + "/differential/", backupName + ".zip") : new File(location.toString() + "/incremental/", backupName + ".zip");
+                if (ConfigManager.splitZips.get()) {
+                    zip.delete();
+                    zip = differential ? new File(location.toString() + "/differential/", backupName + ".zip.001") : new File(location.toString() + "/incremental/", backupName + ".zip.001");
+                }
                 FileOutputStream outputStream = new FileOutputStream(zip);
                 ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
                 zipOutputStream.setLevel((int) ConfigManager.compression.get());
+
+                long maxsize = ConfigManager.zipSplitSize.get() * 1024 * 1024;
+                int part = 1;
+                long currentSize = 0;
 
                 int max = toBackup.size();
                 int index = 0;
@@ -417,6 +447,18 @@ public class ThreadedBackup extends Thread {
                         this.erroringFiles.add(path.toString());
                     }
                     zipOutputStream.closeEntry();
+                    currentSize += sourceFile.length();
+                    if (ConfigManager.splitZips.get() && currentSize >= maxsize) {
+                        zipOutputStream.close();
+                        part++;
+                        String newName = zip.getAbsolutePath().substring(0, zip.getAbsolutePath().length() - 3) + String.format("%03d", part);
+                        zip = new File(newName);
+                        outputStream = new FileOutputStream(zip);
+                        zipOutputStream = new ZipOutputStream(outputStream);
+                        zipOutputStream.setLevel((int) ConfigManager.compression.get());
+                        currentSize = 0;
+                    }
+
                     index++;
                     if (!this.shutdown) {
                         BackupStatusInstance instance = new BackupStatusInstance();
