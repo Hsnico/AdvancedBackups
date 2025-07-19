@@ -17,7 +17,7 @@ public record PacketToastSubscribe(boolean enable) implements CustomPayload {
         this.enable = enable;
     }
 
-    public static final PacketCodec<PacketByteBuf, PacketToastSubscribe> CODEC = PacketCodec.tuple(PacketCodecs.BOOL, PacketToastSubscribe::enable, PacketToastSubscribe::new);
+    public static final PacketCodec<PacketByteBuf, PacketToastSubscribe> CODEC = PacketCodec.tuple(PacketCodecs.BOOLEAN, PacketToastSubscribe::enable, PacketToastSubscribe::new);
 
 
     public static void handle(PacketToastSubscribe message, ServerPlayNetworking.Context context) {
